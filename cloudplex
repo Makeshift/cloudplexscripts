@@ -1,41 +1,13 @@
+
 #!/bin/bash
-# /etc/init.d/screensh
+inotifywait -m /home/plex/Downloads/toupload/ -e create -e moved_to |
+        while read path action file; do
+                echo "The file '$file' appeared in directory '$path' via '$acti$
+                echo "Starting upload"
+                acd_cli ul /home/plex/Downloads/toupload/"$file" /Media/Unsorted/
+                echo "Deleting file/folder"
+                #rm -rf "/home/plex/Downloads/toupload/$file"
+                echo "Syncing"
+                acd_cli sync
+        done
 
-### BEGIN INIT INFO
-# Provides:   cloudplex.sh
-# Required-Start: $local_fs $remote_fs
-# Required-Stop:  $local_fs $remote_fs
-# Should-Start:   $network
-# Should-Stop:    $network
-# Default-Start:  2 3 4 5
-# Default-Stop:   0 1 6
-# Short-Description:    cloudplex.sh
-# Description:    This runs the automatic Amazon Cloud Drive uploader
-### END INIT INFO
-
-case "$1" in
-
-  start)
-        echo "Starting cloudplex.sh"
-        screen -dm sh /home/connor/cloudplex.sh
-        ;;
-  stop)
-        echo "Stopping cloudplex.sh"
-        PID=`ps -ef | grep cloudplex.sh | grep -v grep | awk '{print $2}'`
-        kill -9 $PID 
-        ;;
-
-  restart|force-reload)
-        echo "Restarting $screen"
-        PID=`ps -ef | grep cloudplex.sh | grep -v grep | awk '{print $2}'`
-        kill -9 $PID 
-        sleep 15
-        screen -dm sh /home/connor/cloudplex.sh
-        ;;
-  *)
-        N=/etc/init.d/$NAME
-        echo "Usage: $N {start|stop|restart}" >&2
-        exit 1
-        ;;
-esac
-exit 0
